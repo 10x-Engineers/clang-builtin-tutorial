@@ -1,6 +1,6 @@
 # Tutorial - Adding a dummy Intrinsic in LLVM for RISCV
 
-This tutorial goes through the easiest way to add a builtin which is converted into an intrinsic in the middle end and a RISCV instruction in the backend.
+This tutorial shows the easiest way to add a clang builtin, which is then mapped onto an intrinsic in the middle end, and ultimately a RISCV instruction in the backend.
 
 ![block_diagram](block_diag.png)
 
@@ -43,14 +43,13 @@ cmake --build . --target install
 ```
 
 ## Step 4 - Adding builtin in Clang
-Here we are going to add a dummy `factorial` builtin. That takes one `unsigned int` argument which is the number whose factorial we want to calculate and returns an `int` which is the factorial calculated.
-
+Here we are going to add a dummy `factorial` builtin that receives one integer as an argument and returns the factorial of that integer. The type of input argument is `unsigned int` and the type of output argument is `int`.
 - Open `riscv-llvm/clang/include/clang/Basic/BuiltinsRISCV.td`
 - Add the following code:
 ```
 def factorial : RISCVBuiltin<"int(unsigned int)">;
 ```
-- The above code creates a `RISCVBuiltin` with argument `unsigned int` and return type `int`.
+- The above code creates a `RISCVBuiltin` with the argument `unsigned int` and return type `int`.
 
 ## Step 5 - Adding intrinsic definiton in middle-end
 - Open `riscv-llvm/llvm/include/llvm/IR/IntrinsicsRISCV.td`
@@ -68,9 +67,9 @@ let TargetPrefix = "riscv" in {
 - The above code creates a class `RISCVFactorial` which inherits from `Intrinsic`.
 - The first argument to `Intrinsic` is `llvm_i32_ty` which corresponds to the builtin return type defined in Step 4.
 - The second argument to `Intrinsic` is `llvm_i32_ty` which corresponds to the builtin parameter defined in Step 4.
-- `IntrNoMem` is an intrinsic property which states instruction does not access memory.
-- `IntrWillReturn` is an intrinsic property which states that instruction will return.
-- `IntrSpeculatable` is an intrinsic property indicates that the intrinsic is safe to speculate.
+- `IntrNoMem` is an intrinsic property that states instruction does not access memory.
+- `IntrWillReturn` is an intrinsic property that states that instruction will return.
+- `IntrSpeculatable` is an intrinsic property that indicates that the intrinsic is safe to speculate.
 - `def` is used to instantiate a record of the class `RISCVFactorial`.
 - You can find the definition of `Intrinsic` class in `llvm/include/llvm/IR/Intrinsics.td`.
 
@@ -86,7 +85,7 @@ case RISCV::BI__builtin_riscv_factorial:
 ## Step 7 - Adding the factorial instruction to which the builtin will be mapped
 - Move to the directory `riscv-llvm/llvm/lib/Target/RISCV`
 - Create a file named `RISCVInstrInfoFactorial.td`
-- Add the follwing code:
+- Add the following code:
 ```
 def FACTORIAL : Instruction {
     bits<32> Inst;
@@ -115,12 +114,12 @@ def FACTORIAL : Instruction {
 - `Softfail` is a field that the disassembler can use to provide a way for instructions to not match without killing the whole decode process.
 - `rs2` is source register 2, it is fixed here because our `factorial` instruction requires only one source register.
 - `rs1` is source register 1.
-- `rd` is destination register.
-- `hasSideEffects` does instruction have side effects that are not captured by any operands of the instruction or other flags.
-- `mayLoad` and `mayStore` tells whether instruction reads or writes to memory, respectively.
-- `OutOperandList` is a dag which references the destination register.
-- `InOperandList` is a dag which references the source registers.
-- You can find the definiton of `Instruction`, `ins` and `outs` in `llvm/include/llvm/Target/Target.td`
+- `rd` is the destination register.
+- `hasSideEffects` indicates that the instruction has side effects that are not captured by any operands of the instruction or other flags.
+- `mayLoad` and `mayStore` tell whether instruction reads or writes to memory, respectively.
+- `OutOperandList` is a dag that references the destination register.
+- `InOperandList` is a dag that references the source registers.
+- You can find the definition of `Instruction`, `ins` and `outs` in `llvm/include/llvm/Target/Target.td`
 - Next, add the pattern to match in the same file:
 ```
 def : Pat<(int_riscv_factorial GPR:$rs1), (FACTORIAL GPR:$rs1)>;
@@ -143,8 +142,8 @@ cmake --build . --target install
 ```
 
 ## Step 10 - Generating DAG
-LLVM-IR instructions are converted into Direct Acyclic Graph. This process converts each basic block in the IR to a seperate DAG and each instruction in that DAG is converted into a SelectionDAGNode (SDNode). These nodes go through the lowering,
-DAG combiner, and legalization phases, making it easier to match against target
+LLVM-IR instructions are converted into Direct Acyclic Graph. This process converts each basic block in the IR to a separate DAG and each instruction in that DAG is converted into a SelectionDAGNode (SDNode). These nodes go through the lowering,
+DAG combiner, and legalization phases, making it easier to match against the target
 instructions. The instruction selection then performs a DAG-to-DAG conversion
 using node pattern matching and transforms the SelectionDAG nodes into nodes
 representing target instructions.
@@ -195,7 +194,7 @@ An additional step to check if the immediate operand provided can be represented
 case RISCV::BI_builtin_riscv_dummy_IType:
     return SemaRef.BuiltinConstantArgRange(TheCall, 1, -2048, 2047);
 ```
-This code make sures that the immediate operand is within the range -2048 to 2047. If not then the `clang` semantic checker would throw a diagnostic error.
+This code makes sure that the immediate operand is within the range -2048 to 2047. If not then the `clang` semantic checker would throw a diagnostic error.
  
 
 ```
