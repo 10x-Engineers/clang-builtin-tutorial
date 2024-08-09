@@ -2,7 +2,7 @@
 
 This tutorial shows the easiest way to add a clang builtin, which is then mapped onto an intrinsic in the middle end, and ultimately a RISCV instruction in the backend.
 
-![block_diagram](block_diag.png)
+![block_diagram](public/block_diag.png)
 
 ## Step 0 - Requirements
 
@@ -85,7 +85,7 @@ case RISCV::BI__builtin_riscv_factorial:
 ## Step 7 - Adding the factorial instruction to which the builtin will be mapped
 <b>Instruction encoding:</b>
 
-![factorial](factorial.png)
+![factorial](public/factorial.png)
 
 - Move to the directory `riscv-llvm/llvm/lib/Target/RISCV`
 - Create a file named `RISCVInstrInfoFactorial.td`
@@ -154,11 +154,11 @@ representing target instructions.
 
 - DAG before instruction selection generated using `llc` with option `-view-isel-dags`:
 
-    ![before_instruction_selection](before_isel.png)
+    ![before_instruction_selection](public/before_isel.png)
 
 - DAG after instruction selection generated using `llc` with option `-view-sched-dags`:
 
-    ![after_instruction_selection](after_isel.png)
+    ![after_instruction_selection](public/after_isel.png)
 
 ## Step 11 - Testing
 - Create a `main.c` file with the following code:
@@ -208,7 +208,7 @@ case RISCV::BI__builtin_riscv_dummy_IType:
 ```
 <b>Instruction encoding:</b>
 
-![dummy](dummy.png)
+![dummy](public/dummy.png)
 ```
 def DUMMYITYPE : Instruction {
     bits<32> Inst;
