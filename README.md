@@ -43,13 +43,13 @@ cmake --build . --target install
 ```
 
 ## Step 4 - Adding builtin in Clang
-Here we are going to add a dummy `factorial` builtin that receives one integer as an argument and returns the factorial of that integer. The type of input argument is `unsigned int` and the type of output argument is `int`.
+Here we are going to add a dummy `factorial` builtin that receives one integer as an argument and returns the factorial of that integer. The type of input argument is `unsigned int` and the type of output argument is `unsigned int`.
 - Open `riscv-llvm/clang/include/clang/Basic/BuiltinsRISCV.td`
 - Add the following code:
 ```
-def factorial : RISCVBuiltin<"int(unsigned int)">;
+def factorial : RISCVBuiltin<"unsigned int(unsigned int)">;
 ```
-- The above code creates a `RISCVBuiltin` with the argument `unsigned int` and return type `int`.
+- The above code creates a `RISCVBuiltin` with the argument `unsigned int` and return type `unsigned int`.
 
 ## Step 5 - Adding intrinsic definiton in middle-end
 - Open `riscv-llvm/llvm/include/llvm/IR/IntrinsicsRISCV.td`
@@ -73,7 +73,7 @@ let TargetPrefix = "riscv" in {
 - `def` is used to instantiate a record of the class `RISCVFactorial`.
 - You can find the definition of `Intrinsic` class in `llvm/include/llvm/IR/Intrinsics.td`.
 
-## Step 6 - Mapping the builtin with the intrinsic
+## Step 6 - Mapping the builtin to the intrinsic
 - Open `riscv-llvm/clang/lib/CodeGen/CGBuiltin.cpp`
 - In the function `EmitRISCVBuiltinExpr`, in the `switch(BuiltID)` statement add:
 ```
@@ -83,7 +83,10 @@ case RISCV::BI__builtin_riscv_factorial:
 ```
 
 ## Step 7 - Adding the factorial instruction to which the builtin will be mapped
+<b>Instruction encoding:</b>
+
 ![factorial](factorial.png)
+
 - Move to the directory `riscv-llvm/llvm/lib/Target/RISCV`
 - Create a file named `RISCVInstrInfoFactorial.td`
 - Add the following code:
@@ -161,7 +164,7 @@ representing target instructions.
 - Create a `main.c` file with the following code:
 ```
 int main() {
-	int j = __builtin_riscv_factorial(6);
+	unsigned int j = __builtin_riscv_factorial(6);
 }
 ```
 - Compile using the command
@@ -203,6 +206,8 @@ case RISCV::BI__builtin_riscv_dummy_IType:
     ID = Intrinsic::riscv_dummy_IType;
     break;
 ```
+<b>Instruction encoding:</b>
+
 ![dummy](dummy.png)
 ```
 def DUMMYITYPE : Instruction {
