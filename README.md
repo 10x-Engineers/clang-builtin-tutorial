@@ -83,6 +83,7 @@ case RISCV::BI__builtin_riscv_factorial:
 ```
 
 ## Step 7 - Adding the factorial instruction to which the builtin will be mapped
+![factorial](factorial.png)
 - Move to the directory `riscv-llvm/llvm/lib/Target/RISCV`
 - Create a file named `RISCVInstrInfoFactorial.td`
 - Add the following code:
@@ -150,11 +151,11 @@ representing target instructions.
 
 - DAG before instruction selection generated using `llc` with option `-view-isel-dags`:
 
-    ![before_instruction_selection](before_isel.svg)
+    ![before_instruction_selection](before_isel.png)
 
 - DAG after instruction selection generated using `llc` with option `-view-sched-dags`:
 
-    ![after_instruction_selection](after_isel.svg)
+    ![after_instruction_selection](after_isel.png)
 
 ## Step 11 - Testing
 - Create a `main.c` file with the following code:
@@ -202,6 +203,7 @@ case RISCV::BI__builtin_riscv_dummy_IType:
     ID = Intrinsic::riscv_dummy_IType;
     break;
 ```
+![dummy](dummy.png)
 ```
 def DUMMYITYPE : Instruction {
     bits<32> Inst;
@@ -227,3 +229,4 @@ def DUMMYITYPE : Instruction {
 ```
 def : Pat<(int_riscv_dummy_IType GPR:$rs1, simm12:$imm12), (DUMMYITYPE GPR:$rs1, simm12:$imm12)>;
 ```
+You can repeat the steps 9, 10 and 11 for `dummyIType`. In the testing, just change the name to the respective builtin and pass two arguments, one for `rs1` and other for `imm12`.
