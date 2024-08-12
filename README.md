@@ -198,7 +198,23 @@ clang main.c
 ```
 llvm-objdump -d a.out > a.dump
 ```
-- In `a.dump` file you can search to see whether the `factorial` instruction is present or not.
+- In `a.dump` file you can see `factorial` instruction in the `main` function:
+```
+00010162 <main>:
+   10162: 1141         	addi	sp, sp, -0x10
+   10164: c606         	sw	ra, 0xc(sp)
+   10166: c422         	sw	s0, 0x8(sp)
+   10168: 0800         	addi	s0, sp, 0x10
+   1016a: 4519         	li	a0, 0x6
+   1016c: 09f5752b     	factorial	a0, a0
+   10170: fea42a23     	sw	a0, -0xc(s0)
+   10174: 4501         	li	a0, 0x0
+   10176: 40b2         	lw	ra, 0xc(sp)
+   10178: 4422         	lw	s0, 0x8(sp)
+   1017a: 0141         	addi	sp, sp, 0x10
+   1017c: 8082         	ret
+```
+
 
 # Additional Example: Adding an I-type Instruction
 The process for adding an I-type instruction is same as the above. The code snippets are given below.
