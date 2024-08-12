@@ -157,7 +157,9 @@ int main() {
 ```
 clang -S -emit-llvm main.c -o main.ll
 ```
-### Generating DAG
+
+<i><b>A small note on LLVM SelectionDAG process:</b></i>
+
 LLVM-IR instructions are converted into Direct Acyclic Graph. This process converts each basic block in the IR to a separate DAG and each instruction in that DAG is converted into a SelectionDAGNode (SDNode). These nodes go through the lowering,
 DAG combiner, and legalization phases, making it easier to match against the target
 instructions. The instruction selection then performs a DAG-to-DAG conversion
@@ -165,30 +167,30 @@ using node pattern matching and transforms the SelectionDAG nodes into nodes
 representing target instructions.
 
 - DAG, before instruction selection, generated using:
-    ```
-    # -fast-isel option is set to false here because llc by default uses FastIsel at no optimization
+```
+# -fast-isel option is set to false here because llc by default uses FastIsel at no optimization
 
-    llc -view-isel-dags -fast-isel=false main.ll
+llc -view-isel-dags -fast-isel=false main.ll
 
-    # generate svg from dot file
-    
-    dot -Tsvg <path_to_dot_file> -o dag.svg  
-    ```
-    
-    ![before_instruction_selection](public/before_isel.png)
+# generate svg from dot file
+
+dot -Tsvg <path_to_dot_file> -o dag.svg  
+```
+
+![before_instruction_selection](public/before_isel.png)
 
 - DAG, after instruction selection, generated using:
-    ```
-    # -fast-isel option is set to false here because llc by default uses FastIsel at no optimization
+```
+# -fast-isel option is set to false here because llc by default uses FastIsel at no optimization
 
-    llc -view-sched-dags -fast-isel=false main.ll
-    
-    # generate svg from dot file
-    
-    dot -Tsvg <path_to_dot_file> -o dag.svg 
-    ```
+llc -view-sched-dags -fast-isel=false main.ll
 
-    ![after_instruction_selection](public/after_isel.png)
+# generate svg from dot file
+
+dot -Tsvg <path_to_dot_file> -o dag.svg 
+```
+
+![after_instruction_selection](public/after_isel.png)
 
 - Compile using the command
 ```
