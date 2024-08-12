@@ -131,7 +131,7 @@ def : Pat<(int_riscv_factorial GPR:$rs1), (FACTORIAL GPR:$rs1)>;
 ```
 - This line matches the intrinsic to the `FACTORIAL` instruction.
 - `Pat` takes two arguments, `dag from` and `dag to`.
-- <b>Note:</b> Here we do not create our own class for an instruction because we are only adding one instruction. If multiple similar instructions have to be added then we can create a class that inherits from `Instruction` and reduce the code duplication. You can look at files [RISCVInstrInfo.td](https://github.com/llvm/llvm-project/blob/main/llvm/lib/Target/RISCV/RISCVInstrInfo.td) and [RISCVInstrFormats.td](https://github.com/llvm/llvm-project/blob/main/llvm/lib/Target/RISCV/RISCVInstrFormats.td) to see how the code duplication for instructions with similar formats is dealt with by using inheritance.
+> **_NOTE:_** Here we do not create our own class for an instruction because we are only adding one instruction. If multiple similar instructions have to be added then we can create a class that inherits from `Instruction` and reduce the code duplication. You can look at files [RISCVInstrInfo.td](https://github.com/llvm/llvm-project/blob/main/llvm/lib/Target/RISCV/RISCVInstrInfo.td) and [RISCVInstrFormats.td](https://github.com/llvm/llvm-project/blob/main/llvm/lib/Target/RISCV/RISCVInstrFormats.td) to see how the code duplication for instructions with similar formats is dealt with by using inheritance.
 
 ## Step 8 - Include `RISCVInstrInfoFactorial.td`
 - Open `llvm/lib/Target/RISCV/RISCVInstrInfo.td`
@@ -158,9 +158,7 @@ int main() {
 clang -S -emit-llvm main.c -o main.ll
 ```
 
-<i><b>A small note on LLVM SelectionDAG process:</b></i>
-
-LLVM-IR instructions are converted into Direct Acyclic Graph. This process converts each basic block in the IR to a separate DAG and each instruction in that DAG is converted into a SelectionDAGNode (SDNode). These nodes go through the lowering,
+> **_NOTE:_** LLVM-IR instructions are converted into Direct Acyclic Graph. This process converts each basic block in the IR to a separate DAG and each instruction in that DAG is converted into a SelectionDAGNode (SDNode). These nodes go through the lowering,
 DAG combiner, and legalization phases, making it easier to match against the target
 instructions. The instruction selection then performs a DAG-to-DAG conversion
 using node pattern matching and transforms the SelectionDAG nodes into nodes
