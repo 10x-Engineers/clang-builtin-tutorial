@@ -131,7 +131,7 @@ def : Pat<(int_riscv_factorial GPR:$rs1), (FACTORIAL GPR:$rs1)>;
 ```
 - This line matches the intrinsic to the `FACTORIAL` instruction.
 - `Pat` takes two arguments, `dag from` and `dag to`.
-> **_NOTE:_** Here we do not create our own class for an instruction because we are only adding one instruction. If multiple similar instructions have to be added then we can create a class that inherits from `Instruction` and reduce the code duplication. You can look at files [RISCVInstrInfo.td](https://github.com/llvm/llvm-project/blob/main/llvm/lib/Target/RISCV/RISCVInstrInfo.td) and [RISCVInstrFormats.td](https://github.com/llvm/llvm-project/blob/main/llvm/lib/Target/RISCV/RISCVInstrFormats.td) to see how the code duplication for instructions with similar formats is dealt with by using inheritance.
+> **_NOTE:_** Here we do not create our own class for an instruction because we are only adding one instruction and we wanted to keep this tutorial very simple to follow. If multiple similar instructions have to be added then we can create a class that inherits from `Instruction` to reduce the code duplication. You can look at files [RISCVInstrInfo.td](https://github.com/llvm/llvm-project/blob/main/llvm/lib/Target/RISCV/RISCVInstrInfo.td) and [RISCVInstrFormats.td](https://github.com/llvm/llvm-project/blob/main/llvm/lib/Target/RISCV/RISCVInstrFormats.td) to see how the code duplication for instructions with similar formats is dealt with by using inheritance.
 
 ## Step 8 - Include `RISCVInstrInfoFactorial.td`
 - Open `llvm/lib/Target/RISCV/RISCVInstrInfo.td`
