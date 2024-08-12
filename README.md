@@ -84,10 +84,9 @@ case RISCV::BI__builtin_riscv_factorial:
 
 ## Step 7 - Adding the factorial instruction to which the builtin will be mapped
 
-<figure style="text-align: center;">
-  <img src="public/factorial.png" alt="factorial instruction encoding">
-  <figcaption><i>Instruction encoding</i></figcaption>
-</figure>
+<i><b>Instruction encoding</b></i>
+
+![factorial instruction encoding](public/factorial.png)
 
 - Move to the directory `riscv-llvm/llvm/lib/Target/RISCV`
 - Create a file named `RISCVInstrInfoFactorial.td`
@@ -234,10 +233,9 @@ case RISCV::BI__builtin_riscv_dummy_IType:
     ID = Intrinsic::riscv_dummy_IType;
     break;
 ```
-<figure style="text-align: center;">
-  <img src="public/dummy.png" alt="dummyIType instruction encoding">
-  <figcaption><i>Instruction encoding</i></figcaption>
-</figure>
+<i><b>Instruction encoding</b></i>
+
+![dummtIType instruction encoding](public/dummy.png)
 
 - Move to the directory `riscv-llvm/llvm/lib/Target/RISCV`
 - Create a file named `RISCVInstrInfoFactorial.td`
