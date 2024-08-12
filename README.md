@@ -14,7 +14,7 @@ Before starting with the tutorial, ensure that you have the following:
 - Familiarity with TableGen.
 
 ## Step 1 - Downloading riscv-gnu-toolchain for llvm
-Download the 32-bit version for llvm from [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain/releases/tag/2024.04.12).
+Download the 32-bit version for llvm from [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain/releases/tag/2024.04.12). Direct link of toolchain that that was used to make this tutorial is [this](https://github.com/riscv-collab/riscv-gnu-toolchain/releases/download/2024.08.06/riscv32-elf-ubuntu-22.04-llvm-nightly-2024.08.06-nightly.tar.gz).
 
 ## Step 2 - Cloning llvm-project
 ```
@@ -83,9 +83,11 @@ case RISCV::BI__builtin_riscv_factorial:
 ```
 
 ## Step 7 - Adding the factorial instruction to which the builtin will be mapped
-<b>Instruction encoding:</b>
 
-![factorial](public/factorial.png)
+<figure style="text-align: center;">
+  <img src="public/factorial.png" alt="factorial instruction encoding">
+  <figcaption><i>Instruction encoding</i></figcaption>
+</figure>
 
 - Move to the directory `riscv-llvm/llvm/lib/Target/RISCV`
 - Create a file named `RISCVInstrInfoFactorial.td`
@@ -130,7 +132,7 @@ def : Pat<(int_riscv_factorial GPR:$rs1), (FACTORIAL GPR:$rs1)>;
 ```
 - This line matches the intrinsic to the `FACTORIAL` instruction.
 - `Pat` takes two arguments, `dag from` and `dag to`.
-- <b>Note:</b> Here we do not create our own class for an instruction because we are only adding one instruction. If multiple similar instructions have to be added then we can create a class that inherits from `Instruction` and reduce the code duplication. 
+- <b>Note:</b> Here we do not create our own class for an instruction because we are only adding one instruction. If multiple similar instructions have to be added then we can create a class that inherits from `Instruction` and reduce the code duplication. You can look at files [RISCVInstrInfo.td](https://github.com/llvm/llvm-project/blob/main/llvm/lib/Target/RISCV/RISCVInstrInfo.td) and [RISCVInstrFormats.td](https://github.com/llvm/llvm-project/blob/main/llvm/lib/Target/RISCV/RISCVInstrFormats.td) to see how the code duplication for instructions with similar formats is dealt with by using inheritance.
 
 ## Step 8 - Include `RISCVInstrInfoFactorial.td`
 - Open `llvm/lib/Target/RISCV/RISCVInstrInfo.td`
@@ -145,28 +147,50 @@ include "RISCVInstrInfoFactorial.td"
 cmake --build . --target install
 ```
 
-## Step 10 - Generating DAG
-LLVM-IR instructions are converted into Direct Acyclic Graph. This process converts each basic block in the IR to a separate DAG and each instruction in that DAG is converted into a SelectionDAGNode (SDNode). These nodes go through the lowering,
-DAG combiner, and legalization phases, making it easier to match against the target
-instructions. The instruction selection then performs a DAG-to-DAG conversion
-using node pattern matching and transforms the SelectionDAG nodes into nodes
-representing target instructions.
-
-- DAG before instruction selection generated using `llc` with option `-view-isel-dags`:
-
-    ![before_instruction_selection](public/before_isel.png)
-
-- DAG after instruction selection generated using `llc` with option `-view-sched-dags`:
-
-    ![after_instruction_selection](public/after_isel.png)
-
-## Step 11 - Testing
+## Step 10 - Testing
 - Create a `main.c` file with the following code:
 ```
 int main() {
 	unsigned int j = __builtin_riscv_factorial(6);
 }
 ```
+- Generate LLVM IR using:
+```
+clang -S -emit-llvm main.c -o main.ll
+```
+### Generating DAG
+LLVM-IR instructions are converted into Direct Acyclic Graph. This process converts each basic block in the IR to a separate DAG and each instruction in that DAG is converted into a SelectionDAGNode (SDNode). These nodes go through the lowering,
+DAG combiner, and legalization phases, making it easier to match against the target
+instructions. The instruction selection then performs a DAG-to-DAG conversion
+using node pattern matching and transforms the SelectionDAG nodes into nodes
+representing target instructions.
+
+- DAG, before instruction selection, generated using:
+    ```
+    # -fast-isel option is set to false here because llc by default uses FastIsel at no optimization
+
+    llc -view-isel-dags -fast-isel=false main.ll
+
+    # generate svg from dot file
+    
+    dot -Tsvg <path_to_dot_file> -o dag.svg  
+    ```
+    
+    ![before_instruction_selection](public/before_isel.png)
+
+- DAG, after instruction selection, generated using:
+    ```
+    # -fast-isel option is set to false here because llc by default uses FastIsel at no optimization
+
+    llc -view-sched-dags -fast-isel=false main.ll
+    
+    # generate svg from dot file
+    
+    dot -Tsvg <path_to_dot_file> -o dag.svg 
+    ```
+
+    ![after_instruction_selection](public/after_isel.png)
+
 - Compile using the command
 ```
 clang main.c
@@ -180,9 +204,13 @@ llvm-objdump -d a.out > a.dump
 # Additional Example: Adding an I-type Instruction
 The process for adding an I-type instruction is same as the above. The code snippets are given below.
 
+- Open `riscv-llvm/clang/include/clang/Basic/BuiltinsRISCV.td`
+- Add the following code:
 ```
 def dummy_IType : RISCVBuiltin<"int(int,int)">
 ```
+- Open `riscv-llvm/llvm/include/llvm/IR/IntrinsicsRISCV.td`
+- Add the following code:
 ```
 let TargetPrefix = "riscv" in {
 
@@ -193,22 +221,27 @@ let TargetPrefix = "riscv" in {
   def int_riscv_dummy_IType : RiscvDummyIType;
 }
 ```
-An additional step to check if the immediate operand provided can be represented in 12-bits is to have a check in `clang/lib/Sema/SemaRISCV.cpp` in the function `CheckBuiltinFunctionCall`.
+An additional step to check if the immediate operand provided can be represented in 12-bits is to have a check in `clang/lib/Sema/SemaRISCV.cpp` in the function `CheckBuiltinFunctionCall`. This will makes sure that the immediate operand is within the range -2048 to 2047. If not then the `clang` semantic checker would throw a diagnostic error.
 ```
+
 case RISCV::BI_builtin_riscv_dummy_IType:
     return SemaRef.BuiltinConstantArgRange(TheCall, 1, -2048, 2047);
 ```
-This code makes sure that the immediate operand is within the range -2048 to 2047. If not then the `clang` semantic checker would throw a diagnostic error.
- 
-
+- Open `riscv-llvm/clang/lib/CodeGen/CGBuiltin.cpp`
+- In the function `EmitRISCVBuiltinExpr`, in the `switch(BuiltID)` statement add:
 ```
 case RISCV::BI__builtin_riscv_dummy_IType:
     ID = Intrinsic::riscv_dummy_IType;
     break;
 ```
-<b>Instruction encoding:</b>
+<figure style="text-align: center;">
+  <img src="public/dummy.png" alt="dummyIType instruction encoding">
+  <figcaption><i>Instruction encoding</i></figcaption>
+</figure>
 
-![dummy](public/dummy.png)
+- Move to the directory `riscv-llvm/llvm/lib/Target/RISCV`
+- Create a file named `RISCVInstrInfoFactorial.td`
+- Add the following code:
 ```
 def DUMMYITYPE : Instruction {
     bits<32> Inst;
@@ -234,4 +267,4 @@ def DUMMYITYPE : Instruction {
 ```
 def : Pat<(int_riscv_dummy_IType GPR:$rs1, simm12:$imm12), (DUMMYITYPE GPR:$rs1, simm12:$imm12)>;
 ```
-You can repeat the steps 9, 10 and 11 for `dummyIType`. In the testing, just change the name to the respective builtin and pass two arguments, one for `rs1` and other for `imm12`.
+You can repeat the steps 9 and 10 for `dummyIType`. In the testing, just change the name to the respective builtin and pass two arguments, one for `rs1` and other for `imm12`.
