@@ -43,14 +43,14 @@ cmake --build . --target install
 ```
 
 ## Step 4 - Adding builtin in Clang
-Here we are going to add a dummy `factorial` builtin that receives one integer as an argument and returns the factorial of that integer. The type of input argument is `unsigned int` and the type of output argument is `unsigned int`.
+Here we are going to add a dummy `factorial` builtin that receives one integer as an argument and returns the factorial of that integer. The type of input argument is `unsigned int` and the return type is `unsigned int`.
 - Open `riscv-llvm/clang/include/clang/Basic/BuiltinsRISCV.td`
 - Add the following code:
 ```
 def factorial : RISCVBuiltin<"unsigned int(unsigned int)">;
 ```
 - The above code creates a `RISCVBuiltin` with the argument `unsigned int` and return type `unsigned int`.
-
+- This builtin will have the signature `_builtin_riscv_factorial(unsigned int)` in `C` code.
 ## Step 5 - Adding intrinsic definiton in middle-end
 - Open `riscv-llvm/llvm/include/llvm/IR/IntrinsicsRISCV.td`
 - Add the following code:
