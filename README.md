@@ -14,7 +14,7 @@ Before starting with the tutorial, ensure that you have the following:
 - Familiarity with TableGen.
 
 ## Step 1 - Downloading riscv-gnu-toolchain for llvm
-Download the 32-bit version for llvm from [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain/releases/tag/2024.04.12). Direct link of toolchain that that was used to make this tutorial is [this](https://github.com/riscv-collab/riscv-gnu-toolchain/releases/download/2024.08.06/riscv32-elf-ubuntu-22.04-llvm-nightly-2024.08.06-nightly.tar.gz).
+Download the 32-bit version for llvm from [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain/releases/tag/2024.04.12). Direct link of toolchain that was used to make this tutorial is [this](https://github.com/riscv-collab/riscv-gnu-toolchain/releases/download/2024.08.06/riscv32-elf-ubuntu-22.04-llvm-nightly-2024.08.06-nightly.tar.gz).
 
 ## Step 2 - Cloning llvm-project
 ```
